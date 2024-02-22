@@ -17,7 +17,6 @@ const app = express();
 const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: 'sessions',
-  expires: 1000 * 60 * 60 * 24,
 });
 const csrfProtection = csrf();
 
@@ -98,16 +97,18 @@ app.get('/500', errorController.get500);
 
 app.use(errorController.get404);
 
-// app.use((error, req, res, next) => {
-//   res.status(500).render('500', {
-//     pageTitle: 'Error!',
-//     path: '/500',
-//     isAuthenticated: req.session.isLoggedIn,
-//   });
-// });
+app.use((error, req, res, next) => {
+  // res.status(error.httpStatusCode).render(...);
+  // res.redirect('/500');
+  res.status(500).render('500', {
+    pageTitle: 'Error!',
+    path: '/500',
+    isAuthenticated: req.session.isLoggedIn,
+  });
+});
 
 mongoose
-  .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(MONGODB_URI)
   .then((result) => {
     app.listen(3001);
   })
